@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Art &amp; Design History · Course Tracker</title>
+  <title>Art &amp; Design History · Course &amp; Timeline</title>
   <style>
     :root {
       --bg: #f9f7f2;
@@ -15,15 +15,12 @@
       --muted: #4a5a4a;
       --border-light: #ddd9cf;
       --checked-bg: #f0f5ef;
-
-      --marine: #1b3a5c;        /* deep marine blue */
-      --magenta: #b02a6f;       /* rich magenta — used only for craft tags */
-
-      --sidebar-width: 280px;
+      --marine: #1b3a5c;
+      --magenta: #b02a6f;
+      --sidebar-width: 300px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -34,487 +31,344 @@
       padding: 2rem 1rem 4rem;
       padding-left: 1rem;
       transition: padding-left 0.25s ease;
+      overflow-x: hidden;
     }
+    body.sidebar-open { padding-left: calc(var(--sidebar-width) + 1.5rem); }
 
-    body.sidebar-open {
-      padding-left: calc(var(--sidebar-width) + 1.5rem);
-    }
-
-    /* ---------- HAMBURGER TOGGLE ---------- */
+    /* ---------- HAMBURGER ---------- */
     .sidebar-toggle {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      z-index: 200;
-      width: 48px;
-      height: 48px;
-      background: var(--card-bg);
-      border: 2px solid var(--spine);
-      border-radius: 10px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      padding: 0;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-      transition: all 0.2s;
+      position: fixed; top: 1rem; left: 1rem; z-index: 200;
+      width: 48px; height: 48px; background: var(--card-bg);
+      border: 2px solid var(--spine); border-radius: 10px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; padding: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.12); transition: all 0.2s;
     }
-
-    .sidebar-toggle:hover {
-      background: var(--spine);
-    }
-
-    .sidebar-toggle:hover span {
-      background: #fff;
-    }
-
-    .sidebar-toggle span {
-      display: block;
-      width: 22px;
-      height: 3px;
-      background: var(--spine);
-      border-radius: 2px;
-      transition: background 0.2s;
-    }
+    .sidebar-toggle:hover { background: var(--spine); }
+    .sidebar-toggle:hover span { background: #fff; }
+    .sidebar-toggle span { display: block; width: 22px; height: 3px; background: var(--spine); border-radius: 2px; transition: background 0.2s; }
 
     /* ---------- SIDEBAR ---------- */
     .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: var(--sidebar-width);
-      height: 100vh;
-      background: #ffffff;
-      border-right: 2px solid var(--border-light);
-      box-shadow: 4px 0 18px rgba(0,0,0,0.08);
-      display: flex;
-      flex-direction: column;
-      z-index: 150;
-      overflow: hidden;
-      transform: translateX(-100%);
-      transition: transform 0.25s ease;
+      position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh;
+      background: #ffffff; border-right: 2px solid var(--border-light);
+      box-shadow: 4px 0 18px rgba(0,0,0,0.08); display: flex; flex-direction: column;
+      z-index: 150; overflow: hidden; transform: translateX(-100%); transition: transform 0.25s ease;
     }
-
-    body.sidebar-open .sidebar {
-      transform: translateX(0);
-    }
+    body.sidebar-open .sidebar { transform: translateX(0); }
 
     .sidebar-header {
-      padding: 1.2rem 1rem 0.9rem;
-      border-bottom: 2px solid var(--gold);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
+      padding: 1.1rem 1rem 0.8rem; border-bottom: 2px solid var(--gold);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
     }
-
-    .sidebar-header h2 {
-      font-size: 1rem;
-      color: var(--spine);
-      font-weight: 700;
-      letter-spacing: -0.2px;
-      line-height: 1.3;
-    }
-
-    .sidebar-header small {
-      font-size: 0.7rem;
-      color: var(--muted);
-      font-style: italic;
-      display: block;
-    }
-
-    .sidebar-close {
-      background: transparent;
-      border: none;
-      font-size: 1.4rem;
-      color: var(--muted);
-      cursor: pointer;
-      line-height: 1;
-      padding: 0 0.2rem;
-      transition: color 0.15s;
-    }
-
+    .sidebar-header h2 { font-size: 1rem; color: var(--spine); font-weight: 700; letter-spacing: -0.2px; line-height: 1.3; }
+    .sidebar-header small { font-size: 0.7rem; color: var(--muted); font-style: italic; display: block; }
+    .sidebar-close { background: transparent; border: none; font-size: 1.4rem; color: var(--muted); cursor: pointer; line-height: 1; padding: 0 0.2rem; transition: color 0.15s; }
     .sidebar-close:hover { color: var(--accent); }
 
-    .sidebar-nav {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0.6rem 0.4rem 1.2rem;
+    /* Timeline switch button */
+    .sidebar-timeline-link { flex-shrink: 0; padding: 0.6rem 0.9rem 0.5rem; border-bottom: 1px solid var(--border-light); }
+    .view-switch-btn {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 0.8rem;
+      width: 100%; font-family: inherit; text-align: left;
+      background: #fefcf6; border: 1.5px solid var(--gold);
+      border-radius: 10px; transition: all 0.15s; color: var(--text); cursor: pointer;
     }
+    .view-switch-btn:hover { background: var(--gold); color: #1f2a1f; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(201,162,39,0.25); }
+    .view-switch-btn .tp-icon { font-size: 1.2rem; color: var(--accent); flex-shrink: 0; font-weight: bold; transition: color 0.15s; }
+    .view-switch-btn:hover .tp-icon { color: #1f2a1f; }
+    .view-switch-btn .tp-text { display: flex; flex-direction: column; line-height: 1.25; }
+    .view-switch-btn .tp-text strong { font-size: 0.82rem; color: var(--spine); font-weight: 700; letter-spacing: -0.1px; }
+    .view-switch-btn:hover .tp-text strong { color: #1f2a1f; }
+    .view-switch-btn .tp-text small { font-size: 0.66rem; color: var(--muted); font-style: italic; }
+    .view-switch-btn:hover .tp-text small { color: #3a3a2a; }
+    .view-switch-btn.active { background: var(--gold); }
+    .view-switch-btn.active .tp-text strong, .view-switch-btn.active .tp-icon { color: #1f2a1f; }
 
+    /* Sidebar nav */
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 0.6rem 0.4rem 1.2rem; }
     .sidebar-nav::-webkit-scrollbar { width: 6px; }
     .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
     .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
     .sidebar-nav::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
     .nav-module { margin-bottom: 0.3rem; }
-
     .nav-module > button {
-      width: 100%;
-      background: transparent;
-      border: none;
-      text-align: left;
-      padding: 0.55rem 0.7rem;
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--spine);
-      cursor: pointer;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.4rem;
-      transition: background 0.12s;
-      letter-spacing: -0.2px;
+      width: 100%; background: transparent; border: none; text-align: left;
+      padding: 0.55rem 0.7rem; font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      color: var(--spine); cursor: pointer; border-radius: 8px;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;
+      transition: background 0.12s; letter-spacing: -0.2px;
     }
-
     .nav-module > button:hover { background: rgba(201,162,39,0.1); }
-
-    .nav-module > button .chev {
-      font-size: 0.7rem;
-      color: var(--gold);
-      transition: transform 0.2s;
-      flex-shrink: 0;
-    }
-
+    .nav-module > button .chev { font-size: 0.7rem; color: var(--gold); transition: transform 0.2s; flex-shrink: 0; }
     .nav-module.open > button .chev { transform: rotate(90deg); }
 
-    .nav-list {
-      list-style: none;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.25s ease;
-      padding-left: 0.3rem;
-    }
-
+    .nav-list { list-style: none; max-height: 0; overflow: hidden; transition: max-height 0.25s ease; padding-left: 0.3rem; }
     .nav-module.open .nav-list { max-height: 1200px; }
-
     .nav-list li { margin-bottom: 0.1rem; }
-
     .nav-list a {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 0.78rem;
-      padding: 0.3rem 0.6rem 0.3rem 0.9rem;
-      border-radius: 6px;
-      border-left: 3px solid transparent;
-      transition: all 0.12s;
-      line-height: 1.35;
+      display: flex; align-items: center; gap: 0.4rem; text-decoration: none;
+      color: var(--muted); font-size: 0.78rem; padding: 0.3rem 0.6rem 0.3rem 0.9rem;
+      border-radius: 6px; border-left: 3px solid transparent; transition: all 0.12s; line-height: 1.35;
+      cursor: pointer;
     }
-
-    .nav-list a:hover {
-      background: rgba(201,162,39,0.08);
-      color: var(--spine);
-    }
-
-    .nav-list a .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      background: var(--spine);
-    }
-
+    .nav-list a:hover { background: rgba(201,162,39,0.08); color: var(--spine); }
+    .nav-list a .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--spine); }
     .nav-list a[data-type="design"] .dot { background: var(--marine); }
     .nav-list a[data-type="craft"] .dot { background: var(--magenta); }
-
     .nav-list a .nav-label { flex: 1; }
-
-    .nav-list a .nav-check {
-      font-size: 0.65rem;
-      color: var(--gold);
-      font-weight: 700;
-      opacity: 0;
-      transition: opacity 0.15s;
-    }
-
+    .nav-list a .nav-check { font-size: 0.65rem; color: var(--gold); font-weight: 700; opacity: 0; transition: opacity 0.15s; }
     .nav-list a.done .nav-check { opacity: 1; }
-
-    .nav-list a.done {
-      color: #9a9a8a;
-      text-decoration: line-through;
-      text-decoration-color: var(--gold);
-    }
+    .nav-list a.done { color: #9a9a8a; text-decoration: line-through; text-decoration-color: var(--gold); }
 
     .sidebar-footer {
-      flex-shrink: 0;
-      padding: 0.8rem 1rem;
-      border-top: 1px solid var(--border-light);
-      font-size: 0.72rem;
-      color: var(--muted);
-      background: #fdfcf9;
+      flex-shrink: 0; padding: 0.7rem 1rem; border-top: 1px solid var(--border-light);
+      font-size: 0.72rem; color: var(--muted); background: #fdfcf9;
     }
-
     .sidebar-footer strong { color: var(--spine); }
 
-    /* ---------- MAIN CONTENT ---------- */
-    header {
-      text-align: center;
-      max-width: 900px;
-      margin: 0 auto 1.5rem;
-      padding-bottom: 1.2rem;
-      border-bottom: 3px solid var(--gold);
-    }
-    header h1 {
-      font-size: 2.3rem; letter-spacing: -0.5px;
-      color: var(--spine); margin-bottom: 0.3rem; font-weight: 700;
-    }
-    header p { color: var(--muted); font-size: 1.05rem; font-style: italic; }
-    header p::before, header p::after {
-      content: "✦"; color: var(--gold); font-size: 0.9rem;
-      margin: 0 0.6rem; opacity: 0.8;
-    }
+    /* ---------- VIEWS ---------- */
+    .view { display: none; }
+    .view.active { display: block; }
 
-    /* ---------- PROGRESS BAR ---------- */
+    /* ---------- COURSE VIEW ---------- */
+    .view-header {
+      text-align: center; max-width: 900px; margin: 0 auto 1.5rem;
+      padding-bottom: 1.2rem; border-bottom: 3px solid var(--gold);
+    }
+    .view-header h1 { font-size: 2.3rem; letter-spacing: -0.5px; color: var(--spine); margin-bottom: 0.3rem; font-weight: 700; }
+    .view-header p { color: var(--muted); font-size: 1.05rem; font-style: italic; }
+    .view-header p::before, .view-header p::after { content: "✦"; color: var(--gold); font-size: 0.9rem; margin: 0 0.6rem; opacity: 0.8; }
+
     .progress-wrap { max-width: 780px; margin: 0 auto 1.2rem; text-align: center; }
     .progress-label { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.4rem; letter-spacing: 0.3px; }
     .progress-label strong { color: var(--spine); font-size: 1.05rem; }
-    .progress-bar-bg {
-      background: var(--border-light); height: 12px; border-radius: 10px;
-      overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .progress-bar-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, var(--gold), var(--spine));
-      border-radius: 10px; transition: width 0.35s ease;
-    }
+    .progress-bar-bg { background: var(--border-light); height: 12px; border-radius: 10px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.08); }
+    .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), var(--spine)); border-radius: 10px; transition: width 0.35s ease; }
     .progress-msg { font-size: 0.82rem; color: var(--muted); margin-top: 0.4rem; font-style: italic; }
 
-    /* ---------- RESET BUTTON ---------- */
     .reset-wrap { text-align: center; margin-bottom: 2.2rem; }
     .reset-btn {
       background: transparent; border: 1.5px solid var(--accent); color: var(--accent);
-      font-size: 0.82rem; padding: 0.4rem 1.1rem; border-radius: 30px;
-      cursor: pointer; letter-spacing: 0.4px; font-weight: 600;
-      transition: all 0.15s; font-family: inherit;
+      font-size: 0.82rem; padding: 0.4rem 1.1rem; border-radius: 30px; cursor: pointer;
+      letter-spacing: 0.4px; font-weight: 600; transition: all 0.15s; font-family: inherit;
     }
     .reset-btn:hover { background: var(--accent); color: #fff; }
 
-    /* ---------- MODULES ---------- */
     .modules { max-width: 1200px; margin: 0 auto; }
     .module { margin-bottom: 2.6rem; scroll-margin-top: 1rem; }
-    .module-header {
-      display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap;
-      margin-bottom: 0.3rem;
-      border-left: 6px solid var(--gold);
-      padding-left: 0.8rem;
-    }
+    .module-header { display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.3rem; border-left: 6px solid var(--gold); padding-left: 0.8rem; }
     .module-header h2 { font-size: 1.35rem; color: var(--spine); font-weight: 700; letter-spacing: -0.3px; }
-    .module-header .module-dates {
-      font-size: 0.85rem; color: var(--accent); font-weight: 600;
-      background: rgba(158, 43, 43, 0.07); padding: 0.15rem 0.6rem; border-radius: 20px;
-    }
-    .module-question {
-      font-size: 0.95rem; color: var(--muted); font-style: italic;
-      margin-bottom: 1.1rem; padding-left: 1rem;
-    }
+    .module-header .module-dates { font-size: 0.85rem; color: var(--accent); font-weight: 600; background: rgba(158, 43, 43, 0.07); padding: 0.15rem 0.6rem; border-radius: 20px; }
+    .module-question { font-size: 0.95rem; color: var(--muted); font-style: italic; margin-bottom: 1.1rem; padding-left: 1rem; }
     .module-question::before { content: "❓ "; font-style: normal; color: var(--gold); }
 
-    /* ---------- CARD GRID ---------- */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 1.2rem;
-    }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.2rem; }
 
-    /* ---------- INDIVIDUAL CARD ---------- */
     .card {
-      background: var(--card-bg);
-      border-radius: 14px;
+      background: var(--card-bg); border-radius: 14px;
       box-shadow: 0 4px 14px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
       border-left: 6px solid var(--spine);
       border-top: 1px solid rgba(201,162,39,0.3);
       border-right: 1px solid rgba(201,162,39,0.2);
       border-bottom: 1px solid rgba(201,162,39,0.2);
       padding: 0; transition: all 0.2s; position: relative;
-      display: flex; flex-direction: column; overflow: hidden;
-      scroll-margin-top: 1rem;
+      display: flex; flex-direction: column; overflow: hidden; scroll-margin-top: 1rem;
     }
-
-    /* ---- DESIGN / CRAFT COLOUR CODING ---- */
-    /* design → marine blue */
-    .card[data-type="design"] {
+    .card[data-type="design"], .card[data-type="craft"] {
       border-left-color: var(--marine);
       border-top-color: rgba(27, 58, 92, 0.25);
       border-right-color: rgba(27, 58, 92, 0.15);
       border-bottom-color: rgba(27, 58, 92, 0.15);
     }
-    /* craft → ALSO marine blue (per request) */
-    .card[data-type="craft"] {
-      border-left-color: var(--marine);
-      border-top-color: rgba(27, 58, 92, 0.25);
-      border-right-color: rgba(27, 58, 92, 0.15);
-      border-bottom-color: rgba(27, 58, 92, 0.15);
-    }
-
-    /* checked state overrides */
-    .card.checked {
-      background: var(--checked-bg);
-      border-left-color: var(--gold);
-      box-shadow: 0 2px 8px rgba(45,94,59,0.08);
-    }
-    .card.checked .card-title {
-      color: var(--muted);
-      text-decoration: line-through;
-      text-decoration-color: var(--gold);
-      text-decoration-thickness: 2px;
-    }
+    .card.checked { background: var(--checked-bg); border-left-color: var(--gold); box-shadow: 0 2px 8px rgba(45,94,59,0.08); }
+    .card.checked .card-title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--gold); text-decoration-thickness: 2px; }
     .card.checked .card-body { opacity: 0.65; }
 
-    /* checkbox row */
-    .card-check {
-      display: flex; align-items: flex-start; gap: 0.6rem;
-      padding: 0.9rem 1rem 0.5rem; cursor: pointer; user-select: none;
-      border-bottom: 1px dashed rgba(201,162,39,0.35);
-    }
-    .card-check input[type="checkbox"] {
-      accent-color: var(--spine); width: 20px; height: 20px;
-      cursor: pointer; flex-shrink: 0; margin-top: 0.15rem;
-    }
+    .card-check { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.9rem 1rem 0.5rem; cursor: pointer; user-select: none; border-bottom: 1px dashed rgba(201,162,39,0.35); }
+    .card-check input[type="checkbox"] { accent-color: var(--spine); width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; margin-top: 0.15rem; }
     .card.checked .card-check input[type="checkbox"] { accent-color: var(--gold); }
 
     .card-title-block { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
-    .card-title {
-      font-size: 1.05rem; font-weight: 700; color: var(--spine);
-      letter-spacing: -0.2px; transition: color 0.15s;
-    }
+    .card-title { font-size: 1.05rem; font-weight: 700; color: var(--spine); letter-spacing: -0.2px; transition: color 0.15s; }
+    .card[data-type="design"] .card-title, .card[data-type="craft"] .card-title { color: var(--marine); }
+    .card-dates { font-size: 0.74rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.4px; }
 
-    /* both design and craft title colour → marine */
-    .card[data-type="design"] .card-title { color: var(--marine); }
-    .card[data-type="craft"] .card-title { color: var(--marine); }
-
-    .card-dates {
-      font-size: 0.74rem; font-weight: 600; color: var(--accent);
-      text-transform: uppercase; letter-spacing: 0.4px;
-    }
-
-    .card-tag {
-      font-size: 0.65rem; font-weight: 700; color: #fff;
-      background: var(--accent); padding: 0.1rem 0.45rem; border-radius: 20px;
-      display: inline-block; letter-spacing: 0.3px; margin-top: 0.1rem; width: fit-content;
-    }
+    .card-tag { font-size: 0.65rem; font-weight: 700; color: #fff; background: var(--accent); padding: 0.1rem 0.45rem; border-radius: 20px; display: inline-block; letter-spacing: 0.3px; margin-top: 0.1rem; width: fit-content; }
     .card-tag.new { background: var(--gold); color: #1f2a1f; }
     .card-tag.optional { background: var(--muted); color: #fff; }
     .card-tag.design { background: var(--marine); }
-    /* craft tag keeps magenta so you can still tell them apart at a glance */
     .card-tag.craft { background: var(--magenta); }
 
-    /* body of card */
-    .card-body {
-      padding: 0.7rem 1rem 1rem; font-size: 0.85rem;
-      display: flex; flex-direction: column; gap: 0.55rem; flex: 1;
-    }
+    .card-body { padding: 0.7rem 1rem 1rem; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.55rem; flex: 1; }
     .card-body .detail { color: #2a332a; }
-    .card-body .detail strong {
-      color: var(--spine); font-weight: 600;
-      background: rgba(201,162,39,0.09); padding: 0.05rem 0.3rem; border-radius: 4px;
-    }
-    .card[data-type="design"] .card-body .detail strong { color: var(--marine); background: rgba(27,58,92,0.07); }
-    .card[data-type="craft"] .card-body .detail strong { color: var(--marine); background: rgba(27,58,92,0.07); }
+    .card-body .detail strong { color: var(--spine); font-weight: 600; background: rgba(201,162,39,0.09); padding: 0.05rem 0.3rem; border-radius: 4px; }
+    .card[data-type="design"] .card-body .detail strong, .card[data-type="craft"] .card-body .detail strong { color: var(--marine); background: rgba(27,58,92,0.07); }
 
-    .artworks-focus {
-      background: #fefcf6; border-left: 3px solid var(--gold);
-      padding: 0.5rem 0.6rem; border-radius: 8px; margin-top: 0.2rem;
-    }
-    .card[data-type="design"] .artworks-focus { border-left-color: var(--marine); background: #f5f8fc; }
-    .card[data-type="craft"] .artworks-focus { border-left-color: var(--marine); background: #f5f8fc; }
-
-    .artworks-focus .focus-label {
-      font-size: 0.7rem; font-weight: 700; color: var(--accent);
-      text-transform: uppercase; letter-spacing: 0.4px;
-      display: block; margin-bottom: 0.25rem;
-    }
-    .card[data-type="design"] .focus-label { color: var(--marine); }
-    .card[data-type="craft"] .focus-label { color: var(--marine); }
-
+    .artworks-focus { background: #fefcf6; border-left: 3px solid var(--gold); padding: 0.5rem 0.6rem; border-radius: 8px; margin-top: 0.2rem; }
+    .card[data-type="design"] .artworks-focus, .card[data-type="craft"] .artworks-focus { border-left-color: var(--marine); background: #f5f8fc; }
+    .artworks-focus .focus-label { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 0.25rem; }
+    .card[data-type="design"] .focus-label, .card[data-type="craft"] .focus-label { color: var(--marine); }
     .artworks-focus ul { list-style: none; padding: 0; margin: 0; }
-    .artworks-focus li {
-      position: relative; padding-left: 0.85rem; margin-bottom: 0.15rem;
-      font-size: 0.8rem; color: #2f3b2f; line-height: 1.4;
-    }
-    .artworks-focus li::before {
-      content: "▹"; color: var(--gold); position: absolute; left: 0; font-weight: bold;
-    }
-    .card[data-type="design"] .artworks-focus li::before { color: var(--marine); }
-    .card[data-type="craft"] .artworks-focus li::before { color: var(--marine); }
+    .artworks-focus li { position: relative; padding-left: 0.85rem; margin-bottom: 0.15rem; font-size: 0.8rem; color: #2f3b2f; line-height: 1.4; }
+    .artworks-focus li::before { content: "▹"; color: var(--gold); position: absolute; left: 0; font-weight: bold; }
+    .card[data-type="design"] .artworks-focus li::before, .card[data-type="craft"] .artworks-focus li::before { color: var(--marine); }
 
-    .key-figures {
-      font-size: 0.78rem; font-style: italic; color: #3d4a3d;
-      padding-top: 0.35rem; border-top: 1px solid var(--border-light); margin-top: auto;
-    }
-    .key-figures strong {
-      color: var(--accent); font-style: normal; font-weight: 600;
-      background: none; padding: 0;
-    }
-    .card[data-type="design"] .key-figures strong { color: var(--marine); }
-    .card[data-type="craft"] .key-figures strong { color: var(--marine); }
+    .key-figures { font-size: 0.78rem; font-style: italic; color: #3d4a3d; padding-top: 0.35rem; border-top: 1px solid var(--border-light); margin-top: auto; }
+    .key-figures strong { color: var(--accent); font-style: normal; font-weight: 600; background: none; padding: 0; }
+    .card[data-type="design"] .key-figures strong, .card[data-type="craft"] .key-figures strong { color: var(--marine); }
 
-    /* ---------- OPTIONAL SECTION ---------- */
     .optional-section { max-width: 1200px; margin: 0 auto 2rem; scroll-margin-top: 1rem; }
     .optional-section .module-header { border-left-color: var(--muted); }
     .optional-section .module-header h2 { color: var(--muted); }
-    .optional-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1rem;
-    }
+    .optional-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
     .optional-card {
-      background: var(--card-bg); border-radius: 12px;
-      padding: 0.8rem 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border-left: 5px solid var(--border-light);
-      display: flex; gap: 0.6rem; align-items: flex-start; transition: all 0.15s;
-      scroll-margin-top: 1rem;
+      background: var(--card-bg); border-radius: 12px; padding: 0.8rem 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-left: 5px solid var(--border-light);
+      display: flex; gap: 0.6rem; align-items: flex-start; transition: all 0.15s; scroll-margin-top: 1rem;
     }
     .optional-card.checked { background: var(--checked-bg); border-left-color: var(--gold); }
-    .optional-card input[type="checkbox"] {
-      accent-color: var(--muted); width: 18px; height: 18px;
-      cursor: pointer; flex-shrink: 0; margin-top: 0.2rem;
-    }
+    .optional-card input[type="checkbox"] { accent-color: var(--muted); width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; margin-top: 0.2rem; }
     .optional-card.checked input[type="checkbox"] { accent-color: var(--gold); }
     .optional-card .opt-title { font-weight: 700; font-size: 0.92rem; color: var(--muted); }
-    .optional-card.checked .opt-title {
-      color: #8a8a7a; text-decoration: line-through; text-decoration-color: var(--gold);
-    }
+    .optional-card.checked .opt-title { color: #8a8a7a; text-decoration: line-through; text-decoration-color: var(--gold); }
     .optional-card .opt-note { font-size: 0.78rem; color: var(--muted); line-height: 1.4; margin-top: 0.15rem; }
+
+    /* ---------- TIMELINE VIEW ---------- */
+    .timeline-header-wrap { text-align: center; }
+    .timeline-back-btn {
+      display: inline-block; background: transparent; border: 1.5px solid var(--spine);
+      color: var(--spine); font-size: 0.85rem; font-weight: 600; padding: 0.35rem 1rem;
+      border-radius: 30px; letter-spacing: 0.3px; cursor: pointer; transition: all 0.15s;
+      font-family: inherit; margin-bottom: 1rem;
+    }
+    .timeline-back-btn:hover { background: var(--spine); color: #fff; }
+
+    .scroll-hint {
+      text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem;
+      opacity: 0.7; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .scroll-hint span { color: var(--gold); font-size: 1.2rem; font-weight: bold; }
+
+    .timeline-wrapper {
+      overflow-x: auto; overflow-y: visible; padding: 2rem 1rem 3rem;
+      -webkit-overflow-scrolling: touch; scrollbar-width: thin;
+      scrollbar-color: var(--gold) var(--border-light);
+      scroll-snap-type: x proximity;
+    }
+    .timeline-wrapper::-webkit-scrollbar { height: 10px; }
+    .timeline-wrapper::-webkit-scrollbar-track { background: var(--border-light); border-radius: 10px; }
+    .timeline-wrapper::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; border: 2px solid var(--border-light); }
+
+    .timeline-horizontal {
+      display: flex; flex-wrap: nowrap; align-items: stretch; gap: 1.8rem;
+      position: relative; padding: 2rem 1rem 1rem; min-width: max-content; counter-reset: step;
+    }
+    .timeline-horizontal::before {
+      content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 6px;
+      background: var(--spine); transform: translateY(-50%); border-radius: 4px;
+      box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.25); z-index: 0; pointer-events: none;
+    }
+    .timeline-item {
+      position: relative; flex: 0 0 340px; width: 340px; display: flex;
+      flex-direction: column; align-items: center; scroll-snap-align: start; z-index: 1;
+      counter-increment: step;
+    }
+    .timeline-item:nth-child(odd) { padding-bottom: 3.5rem; }
+    .timeline-item:nth-child(even) { padding-top: 3.5rem; }
+    .timeline-item::before {
+      content: ""; position: absolute; width: 3px; background: var(--spine);
+      left: 50%; transform: translateX(-50%); z-index: 0; opacity: 0.6;
+    }
+    .timeline-item:nth-child(odd)::before { top: auto; bottom: 1.2rem; height: 2.2rem; }
+    .timeline-item:nth-child(even)::before { top: 1.2rem; bottom: auto; height: 2.2rem; }
+    .timeline-item::after {
+      content: ""; position: absolute; width: 22px; height: 22px; background: var(--gold);
+      border: 5px solid var(--accent); border-radius: 50%; z-index: 3;
+      box-shadow: 0 0 0 3px var(--bg); left: 50%; transform: translateX(-50%);
+    }
+    .timeline-item:nth-child(odd)::after { bottom: 0.2rem; }
+    .timeline-item:nth-child(even)::after { top: 0.2rem; }
+
+    .timeline-item .tcard {
+      background: var(--card-bg); padding: 1.4rem 1.3rem 1.2rem; border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
+      border-left: 6px solid var(--spine);
+      border-top: 1px solid rgba(201, 162, 39, 0.35);
+      border-right: 1px solid rgba(201, 162, 39, 0.25);
+      border-bottom: 1px solid rgba(201, 162, 39, 0.25);
+      width: 100%; transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex; flex-direction: column; height: 100%;
+    }
+    .timeline-item:nth-child(even) .tcard { border-left-color: var(--accent); }
+    .timeline-item .tcard:hover { box-shadow: 0 12px 28px rgba(45, 94, 59, 0.12); transform: translateY(-3px); }
+
+    .tdate {
+      display: inline-block; background: var(--gold); color: #1f2a1f; font-weight: 700;
+      font-size: 0.75rem; padding: 0.25rem 0.8rem; border-radius: 30px; letter-spacing: 0.5px;
+      margin-bottom: 0.6rem; text-transform: uppercase;
+      border: 1px solid rgba(158, 43, 43, 0.2); align-self: flex-start;
+    }
+    .timeline-item .tcard h2 {
+      font-size: 1.25rem; margin-bottom: 0.6rem; color: var(--spine); font-weight: 600;
+      letter-spacing: -0.2px; border-bottom: 2px dashed rgba(201, 162, 39, 0.4); padding-bottom: 0.25rem;
+    }
+    .timeline-item:nth-child(even) .tcard h2 { color: var(--accent); }
+
+    .tdetail-group { margin-bottom: 0.55rem; font-size: 0.88rem; color: #2a332a; }
+    .tdetail-group strong { color: var(--spine); font-weight: 600; background: rgba(201, 162, 39, 0.08); padding: 0.1rem 0.3rem; border-radius: 4px; }
+    .timeline-item:nth-child(even) .tdetail-group strong { color: var(--accent); background: rgba(158, 43, 43, 0.06); }
+
+    .tartworks-focus { margin: 0.6rem 0 0.4rem; padding: 0.65rem 0.7rem; background: #fefcf6; border-radius: 10px; border-left: 4px solid var(--gold); font-size: 0.85rem; }
+    .tartworks-focus strong { display: block; color: var(--accent); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.35rem; background: none; padding: 0; }
+    .timeline-item:nth-child(even) .tartworks-focus strong { color: var(--spine); }
+    .tartworks-focus ul { list-style: none; padding-left: 0.2rem; }
+    .tartworks-focus li { position: relative; padding-left: 1rem; margin-bottom: 0.25rem; color: #2f3b2f; font-size: 0.85rem; line-height: 1.4; }
+    .tartworks-focus li::before { content: "▹"; color: var(--gold); position: absolute; left: 0; font-weight: bold; }
+
+    .tartists {
+      margin-top: auto; padding-top: 0.65rem; border-top: 1px solid var(--border-light);
+      font-size: 0.82rem; color: #3d4a3d; font-style: italic; background: #fefcf8;
+      padding: 0.55rem 0.6rem; border-radius: 8px; border-left: 3px solid var(--gold);
+    }
+    .tartists strong { color: var(--accent); font-style: normal; font-weight: 600; background: none; padding: 0; }
+    .timeline-item:nth-child(even) .tartists strong { color: var(--spine); }
 
     /* ---------- FOOTER ---------- */
     footer {
-      text-align: center; margin-top: 3rem; color: var(--muted);
-      font-size: 0.82rem; border-top: 1px solid var(--border-light);
-      padding-top: 1.2rem; max-width: 800px; margin-left: auto; margin-right: auto;
+      text-align: center; margin-top: 3rem; color: var(--muted); font-size: 0.82rem;
+      border-top: 1px solid var(--border-light); padding-top: 1.2rem;
+      max-width: 800px; margin-left: auto; margin-right: auto;
     }
     footer span { color: var(--gold); font-weight: bold; }
 
     /* ---------- RESPONSIVE ---------- */
     @media (max-width: 900px) {
       body.sidebar-open { padding-left: 1rem; }
-      .sidebar {
-        width: 280px;
-        box-shadow: 4px 0 24px rgba(0,0,0,0.18);
-      }
+      .sidebar { width: 280px; box-shadow: 4px 0 24px rgba(0,0,0,0.18); }
       .card-grid { grid-template-columns: 1fr; }
       .module-header h2 { font-size: 1.1rem; }
       .optional-grid { grid-template-columns: 1fr; }
-      header h1 { font-size: 1.7rem; }
+      .view-header h1 { font-size: 1.7rem; }
       .sidebar-toggle { width: 44px; height: 44px; }
+    }
+    @media screen and (max-width: 768px) {
+      .timeline-horizontal { gap: 1.2rem; padding: 1rem 0.5rem; }
+      .timeline-item { flex: 0 0 300px; width: 300px; }
+      .timeline-item .tcard { padding: 1.1rem 1rem 1rem; }
+      .timeline-item .tcard h2 { font-size: 1.1rem; }
+      .timeline-horizontal::before { top: 50%; }
+      .timeline-item:nth-child(odd)::before { bottom: 1rem; height: 1.8rem; }
+      .timeline-item:nth-child(even)::before { top: 1rem; height: 1.8rem; }
     }
   </style>
 </head>
-<body>
+<body data-view="course">
 
-  <!-- ============ HAMBURGER TOGGLE ============ -->
-  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle course contents menu">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle course contents menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
 
-  <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div>
@@ -523,87 +377,83 @@
       </div>
       <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">×</button>
     </div>
+
+    <div class="sidebar-timeline-link">
+      <button class="view-switch-btn" id="viewSwitchBtn" type="button">
+        <span class="tp-icon" id="viewSwitchIcon">⟶</span>
+        <span class="tp-text">
+          <strong id="viewSwitchTitle">Open the full timeline</strong>
+          <small id="viewSwitchSub">horizontal view · all movements &amp; artworks</small>
+        </span>
+      </button>
+    </div>
+
     <nav class="sidebar-nav">
       <div class="nav-module open">
-        <button type="button">
-          <span>Module 1 · Classical &amp; Pre-Modern Art</span>
-          <span class="chev">▶</span>
-        </button>
+        <button type="button"><span>Module 1 · Classical &amp; Pre-Modern Art</span><span class="chev">▶</span></button>
         <ul class="nav-list">
-          <li><a href="#medieval" data-target="medieval"><span class="dot" data-type="art"></span><span class="nav-label">Medieval &amp; Gothic</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#renaissance" data-target="renaissance"><span class="dot" data-type="art"></span><span class="nav-label">Renaissance</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#baroque" data-target="baroque"><span class="dot" data-type="art"></span><span class="nav-label">Baroque</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#rococo" data-target="rococo"><span class="dot" data-type="art"></span><span class="nav-label">Rococo</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="medieval"><span class="dot" data-type="art"></span><span class="nav-label">Medieval &amp; Gothic</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="renaissance"><span class="dot" data-type="art"></span><span class="nav-label">Renaissance</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="baroque"><span class="dot" data-type="art"></span><span class="nav-label">Baroque</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="rococo"><span class="dot" data-type="art"></span><span class="nav-label">Rococo</span><span class="nav-check">✓</span></a></li>
         </ul>
       </div>
 
       <div class="nav-module">
-        <button type="button">
-          <span>Module 2 · Revolutions</span>
-          <span class="chev">▶</span>
-        </button>
+        <button type="button"><span>Module 2 · Revolutions</span><span class="chev">▶</span></button>
         <ul class="nav-list">
-          <li><a href="#neoclassicism" data-target="neoclassicism"><span class="dot" data-type="art"></span><span class="nav-label">Neoclassicism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#romanticism" data-target="romanticism"><span class="dot" data-type="art"></span><span class="nav-label">Romanticism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#realism" data-target="realism"><span class="dot" data-type="art"></span><span class="nav-label">Realism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#impressionism" data-target="impressionism"><span class="dot" data-type="art"></span><span class="nav-label">Impressionism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#postimpressionism" data-target="postimpressionism"><span class="dot" data-type="art"></span><span class="nav-label">Post-Impressionism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#artscrafts" data-target="artscrafts"><span class="dot" data-type="craft"></span><span class="nav-label">Arts &amp; Crafts</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#artnouveau" data-target="artnouveau"><span class="dot" data-type="design"></span><span class="nav-label">Art Nouveau</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="neoclassicism"><span class="dot" data-type="art"></span><span class="nav-label">Neoclassicism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="romanticism"><span class="dot" data-type="art"></span><span class="nav-label">Romanticism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="realism"><span class="dot" data-type="art"></span><span class="nav-label">Realism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="impressionism"><span class="dot" data-type="art"></span><span class="nav-label">Impressionism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="postimpressionism"><span class="dot" data-type="art"></span><span class="nav-label">Post-Impressionism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="artscrafts"><span class="dot" data-type="craft"></span><span class="nav-label">Arts &amp; Crafts</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="artnouveau"><span class="dot" data-type="design"></span><span class="nav-label">Art Nouveau</span><span class="nav-check">✓</span></a></li>
         </ul>
       </div>
 
       <div class="nav-module">
-        <button type="button">
-          <span>Module 3 · Modernism</span>
-          <span class="chev">▶</span>
-        </button>
+        <button type="button"><span>Module 3 · Modernism</span><span class="chev">▶</span></button>
         <ul class="nav-list">
-          <li><a href="#expressionism" data-target="expressionism"><span class="dot" data-type="art"></span><span class="nav-label">Expressionism &amp; Fauvism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#cubism" data-target="cubism"><span class="dot" data-type="art"></span><span class="nav-label">Cubism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#bauhaus" data-target="bauhaus"><span class="dot" data-type="design"></span><span class="nav-label">Bauhaus</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#destijl" data-target="destijl"><span class="dot" data-type="design"></span><span class="nav-label">De Stijl</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#lecorbusier" data-target="lecorbusier"><span class="dot" data-type="design"></span><span class="nav-label">Le Corbusier</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#surrealism" data-target="surrealism"><span class="dot" data-type="art"></span><span class="nav-label">Surrealism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#abstractexpr" data-target="abstractexpr"><span class="dot" data-type="art"></span><span class="nav-label">Abstract Expressionism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#streamline" data-target="streamline"><span class="dot" data-type="design"></span><span class="nav-label">Streamline Moderne</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#popart" data-target="popart"><span class="dot" data-type="art"></span><span class="nav-label">Pop Art</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="expressionism"><span class="dot" data-type="art"></span><span class="nav-label">Expressionism &amp; Fauvism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="cubism"><span class="dot" data-type="art"></span><span class="nav-label">Cubism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="bauhaus"><span class="dot" data-type="design"></span><span class="nav-label">Bauhaus</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="destijl"><span class="dot" data-type="design"></span><span class="nav-label">De Stijl</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="lecorbusier"><span class="dot" data-type="design"></span><span class="nav-label">Le Corbusier</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="surrealism"><span class="dot" data-type="art"></span><span class="nav-label">Surrealism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="abstractexpr"><span class="dot" data-type="art"></span><span class="nav-label">Abstract Expressionism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="streamline"><span class="dot" data-type="design"></span><span class="nav-label">Streamline Moderne</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="popart"><span class="dot" data-type="art"></span><span class="nav-label">Pop Art</span><span class="nav-check">✓</span></a></li>
         </ul>
       </div>
 
       <div class="nav-module">
-        <button type="button">
-          <span>Module 4 · After Modernism</span>
-          <span class="chev">▶</span>
-        </button>
+        <button type="button"><span>Module 4 · After Modernism</span><span class="chev">▶</span></button>
         <ul class="nav-list">
-          <li><a href="#postmodernism" data-target="postmodernism"><span class="dot" data-type="design"></span><span class="nav-label">Postmodernism / Memphis</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#contemporary" data-target="contemporary"><span class="dot" data-type="design"></span><span class="nav-label">Contemporary Design</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="postmodernism"><span class="dot" data-type="design"></span><span class="nav-label">Postmodernism / Memphis</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="contemporary"><span class="dot" data-type="design"></span><span class="nav-label">Contemporary Design</span><span class="nav-check">✓</span></a></li>
         </ul>
       </div>
 
       <div class="nav-module">
-        <button type="button">
-          <span>Optional / Supplementary</span>
-          <span class="chev">▶</span>
-        </button>
+        <button type="button"><span>Optional / Supplementary</span><span class="chev">▶</span></button>
         <ul class="nav-list">
-          <li><a href="#preRaphaelite" data-target="preRaphaelite"><span class="dot" data-type="art"></span><span class="nav-label">Pre-Raphaelites</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#dada" data-target="dada"><span class="dot" data-type="art"></span><span class="nav-label">Dada</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#constructivism" data-target="constructivism"><span class="dot" data-type="design"></span><span class="nav-label">Constructivism</span><span class="nav-check">✓</span></a></li>
-          <li><a href="#artdeco" data-target="artdeco"><span class="dot" data-type="design"></span><span class="nav-label">Art Deco</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="preRaphaelite"><span class="dot" data-type="art"></span><span class="nav-label">Pre-Raphaelites</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="dada"><span class="dot" data-type="art"></span><span class="nav-label">Dada</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="constructivism"><span class="dot" data-type="design"></span><span class="nav-label">Constructivism</span><span class="nav-check">✓</span></a></li>
+          <li><a data-target="artdeco"><span class="dot" data-type="design"></span><span class="nav-label">Art Deco</span><span class="nav-check">✓</span></a></li>
         </ul>
       </div>
     </nav>
+
     <div class="sidebar-footer">
       <span id="sidebarProgress"><strong>0</strong> / <strong>0</strong> topics discussed</span>
     </div>
   </aside>
 
-  <!-- ============ MAIN CONTENT ============ -->
-  <main>
-
-    <header>
+  <!-- ============ COURSE VIEW ============ -->
+  <main class="view active" id="viewCourse">
+    <header class="view-header">
       <h1>Art &amp; Design History</h1>
       <p>Course tracker · from classical art to everyday design</p>
     </header>
@@ -620,16 +470,10 @@
 
     <div class="modules">
 
-      <!-- ============ MODULE 1 ============ -->
       <section class="module" id="module1">
-        <div class="module-header">
-          <h2>Module 1 · Classical &amp; Pre-Modern Art</h2>
-          <span class="module-dates">c. 500 – 1750</span>
-        </div>
+        <div class="module-header"><h2>Module 1 · Classical &amp; Pre-Modern Art</h2><span class="module-dates">c. 500 – 1750</span></div>
         <p class="module-question">How did art serve religion, power, and human self-awareness?</p>
-
         <div class="card-grid">
-
           <div class="card" id="medieval" data-id="medieval" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Medieval &amp; Gothic</span><span class="card-dates">c. 500 – 1400 CE</span></div></label>
             <div class="card-body">
@@ -639,7 +483,6 @@
               <div class="key-figures"><strong>Figures:</strong> Giotto, Cimabue, Hildegard of Bingen, Limbourg Brothers</div>
             </div>
           </div>
-
           <div class="card" id="renaissance" data-id="renaissance" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Renaissance</span><span class="card-dates">c. 1400 – 1600</span></div></label>
             <div class="card-body">
@@ -649,7 +492,6 @@
               <div class="key-figures"><strong>Figures:</strong> Leonardo, Michelangelo, Raphael, Botticelli, van Eyck</div>
             </div>
           </div>
-
           <div class="card" id="baroque" data-id="baroque" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Baroque</span><span class="card-dates">c. 1600 – 1750</span></div></label>
             <div class="card-body">
@@ -659,7 +501,6 @@
               <div class="key-figures"><strong>Figures:</strong> Caravaggio, Rembrandt, Gentileschi, Rubens, Bernini</div>
             </div>
           </div>
-
           <div class="card" id="rococo" data-id="rococo" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Rococo</span><span class="card-dates">c. 1730 – 1780</span></div></label>
             <div class="card-body">
@@ -669,20 +510,13 @@
               <div class="key-figures"><strong>Figures:</strong> Fragonard, Boucher, Watteau, Vigée Le Brun</div>
             </div>
           </div>
-
         </div>
       </section>
 
-      <!-- ============ MODULE 2 ============ -->
       <section class="module" id="module2">
-        <div class="module-header">
-          <h2>Module 2 · The Century of Revolutions — Birth of Art &amp; Design</h2>
-          <span class="module-dates">c. 1750 – 1914</span>
-        </div>
+        <div class="module-header"><h2>Module 2 · The Century of Revolutions — Birth of Art &amp; Design</h2><span class="module-dates">c. 1750 – 1914</span></div>
         <p class="module-question">After industrialization, should artists paint—or reform life?</p>
-
         <div class="card-grid">
-
           <div class="card" id="neoclassicism" data-id="neoclassicism" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Neoclassicism</span><span class="card-dates">c. 1760 – 1830</span></div></label>
             <div class="card-body">
@@ -692,7 +526,6 @@
               <div class="key-figures"><strong>Figures:</strong> David, Ingres, Canova, Kauffman</div>
             </div>
           </div>
-
           <div class="card" id="romanticism" data-id="romanticism" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Romanticism</span><span class="card-dates">c. 1780 – 1850</span></div></label>
             <div class="card-body">
@@ -702,7 +535,6 @@
               <div class="key-figures"><strong>Figures:</strong> Goya, Turner, Delacroix, Friedrich</div>
             </div>
           </div>
-
           <div class="card" id="realism" data-id="realism" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Realism</span><span class="card-dates">c. 1848 – 1880</span></div></label>
             <div class="card-body">
@@ -712,7 +544,6 @@
               <div class="key-figures"><strong>Figures:</strong> Courbet, Millet, Daumier, Bonheur</div>
             </div>
           </div>
-
           <div class="card" id="impressionism" data-id="impressionism" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Impressionism</span><span class="card-dates">c. 1865 – 1885</span></div></label>
             <div class="card-body">
@@ -722,7 +553,6 @@
               <div class="key-figures"><strong>Figures:</strong> Monet, Renoir, Degas, Morisot, Cassatt</div>
             </div>
           </div>
-
           <div class="card" id="postimpressionism" data-id="postimpressionism" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Post-Impressionism</span><span class="card-dates">c. 1886 – 1905</span></div></label>
             <div class="card-body">
@@ -732,7 +562,6 @@
               <div class="key-figures"><strong>Figures:</strong> Van Gogh, Cézanne, Gauguin, Seurat, Toulouse-Lautrec</div>
             </div>
           </div>
-
           <div class="card" id="artscrafts" data-id="artscrafts" data-type="craft">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Arts &amp; Crafts</span><span class="card-dates">c. 1860 – 1900</span><span class="card-tag craft">craft</span></div></label>
             <div class="card-body">
@@ -742,7 +571,6 @@
               <div class="key-figures"><strong>Figures:</strong> William Morris, John Ruskin, C.R. Ashbee</div>
             </div>
           </div>
-
           <div class="card" id="artnouveau" data-id="artnouveau" data-type="design">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Art Nouveau</span><span class="card-dates">c. 1890 – 1914</span><span class="card-tag design">design</span></div></label>
             <div class="card-body">
@@ -752,20 +580,13 @@
               <div class="key-figures"><strong>Figures:</strong> Horta, Guimard, Gaudí, Mucha</div>
             </div>
           </div>
-
         </div>
       </section>
 
-      <!-- ============ MODULE 3 ============ -->
       <section class="module" id="module3">
-        <div class="module-header">
-          <h2>Module 3 · Modernism — Design as Social Project</h2>
-          <span class="module-dates">c. 1914 – 1960</span>
-        </div>
+        <div class="module-header"><h2>Module 3 · Modernism — Design as Social Project</h2><span class="module-dates">c. 1914 – 1960</span></div>
         <p class="module-question">Can design create a better society?</p>
-
         <div class="card-grid">
-
           <div class="card" id="expressionism" data-id="expressionism" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Expressionism &amp; Fauvism</span><span class="card-dates">c. 1905 – 1920</span></div></label>
             <div class="card-body">
@@ -775,7 +596,6 @@
               <div class="key-figures"><strong>Figures:</strong> Matisse, Munch, Kirchner, Kandinsky, Schiele</div>
             </div>
           </div>
-
           <div class="card" id="cubism" data-id="cubism" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Cubism</span><span class="card-dates">c. 1907 – 1920</span></div></label>
             <div class="card-body">
@@ -785,7 +605,6 @@
               <div class="key-figures"><strong>Figures:</strong> Picasso, Braque, Gris, Léger</div>
             </div>
           </div>
-
           <div class="card" id="bauhaus" data-id="bauhaus" data-type="design">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Bauhaus</span><span class="card-dates">1919 – 1933</span><span class="card-tag design">design</span></div></label>
             <div class="card-body">
@@ -795,7 +614,6 @@
               <div class="key-figures"><strong>Figures:</strong> Walter Gropius, Marcel Breuer, Herbert Bayer, Moholy-Nagy</div>
             </div>
           </div>
-
           <div class="card" id="destijl" data-id="destijl" data-type="design">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">De Stijl</span><span class="card-dates">1917 – 1932</span><span class="card-tag design">design</span></div></label>
             <div class="card-body">
@@ -805,7 +623,6 @@
               <div class="key-figures"><strong>Figures:</strong> Mondrian, Theo van Doesburg, Rietveld</div>
             </div>
           </div>
-
           <div class="card" id="lecorbusier" data-id="lecorbusier" data-type="design">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Le Corbusier &amp; International Style</span><span class="card-dates">c. 1920 – 1960</span><span class="card-tag design">architecture</span></div></label>
             <div class="card-body">
@@ -815,7 +632,6 @@
               <div class="key-figures"><strong>Figures:</strong> Le Corbusier, Mies van der Rohe, Walter Gropius</div>
             </div>
           </div>
-
           <div class="card" id="surrealism" data-id="surrealism" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Surrealism</span><span class="card-dates">c. 1924 – 1950</span></div></label>
             <div class="card-body">
@@ -825,7 +641,6 @@
               <div class="key-figures"><strong>Figures:</strong> Dalí, Magritte, Kahlo, Ernst, Miró</div>
             </div>
           </div>
-
           <div class="card" id="abstractexpr" data-id="abstractexpr" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Abstract Expressionism</span><span class="card-dates">c. 1943 – 1960</span></div></label>
             <div class="card-body">
@@ -835,7 +650,6 @@
               <div class="key-figures"><strong>Figures:</strong> Pollock, Rothko, de Kooning, Krasner, Frankenthaler</div>
             </div>
           </div>
-
           <div class="card" id="streamline" data-id="streamline" data-type="design">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Streamline Moderne / Industrial Design</span><span class="card-dates">c. 1929 – 1950s</span><span class="card-tag design">design</span></div></label>
             <div class="card-body">
@@ -845,7 +659,6 @@
               <div class="key-figures"><strong>Figures:</strong> Raymond Loewy, Henry Dreyfuss, Norman Bel Geddes</div>
             </div>
           </div>
-
           <div class="card" id="popart" data-id="popart" data-type="art">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Pop Art</span><span class="card-dates">c. 1955 – 1970</span></div></label>
             <div class="card-body">
@@ -855,20 +668,13 @@
               <div class="key-figures"><strong>Figures:</strong> Warhol, Lichtenstein, Hamilton, Kusama, Haring</div>
             </div>
           </div>
-
         </div>
       </section>
 
-      <!-- ============ MODULE 4 ============ -->
       <section class="module" id="module4">
-        <div class="module-header">
-          <h2>Module 4 · After Modernism — Pluralism &amp; Reflection</h2>
-          <span class="module-dates">c. 1960 – present</span>
-        </div>
+        <div class="module-header"><h2>Module 4 · After Modernism — Pluralism &amp; Reflection</h2><span class="module-dates">c. 1960 – present</span></div>
         <p class="module-question">Are modernist ideals still valid? Who does design serve?</p>
-
         <div class="card-grid">
-
           <div class="card" id="postmodernism" data-id="postmodernism" data-type="design">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Postmodernism / Memphis Group</span><span class="card-dates">c. 1960s – 1980s</span><span class="card-tag design">design</span></div></label>
             <div class="card-body">
@@ -878,7 +684,6 @@
               <div class="key-figures"><strong>Figures:</strong> Ettore Sottsass, Robert Venturi, Michael Graves</div>
             </div>
           </div>
-
           <div class="card" id="contemporary" data-id="contemporary" data-type="design">
             <label class="card-check"><input type="checkbox"><div class="card-title-block"><span class="card-title">Contemporary Design Trends</span><span class="card-dates">c. 1990 – present</span><span class="card-tag optional">optional</span></div></label>
             <div class="card-body">
@@ -888,75 +693,233 @@
               <div class="key-figures"><strong>Figures:</strong> Various (emerging)</div>
             </div>
           </div>
-
         </div>
       </section>
 
-      <!-- ============ OPTIONAL ============ -->
       <section class="optional-section" id="optional">
-        <div class="module-header">
-          <h2>Optional / Supplementary Nodes</h2>
-          <span class="module-dates">mention in class only</span>
-        </div>
+        <div class="module-header"><h2>Optional / Supplementary Nodes</h2><span class="module-dates">mention in class only</span></div>
         <p class="module-question">Good to mention if time allows — not required for the core narrative.</p>
-
         <div class="optional-grid">
-
           <div class="optional-card" id="preRaphaelite" data-id="preRaphaelite">
-            <input type="checkbox">
-            <div>
-              <div class="opt-title">Pre-Raphaelite Brotherhood</div>
-              <div class="opt-note">c. 1848–1854 · Moral bridge between Romanticism and Morris; medieval sincerity. <em>Ophelia</em> (Millais).</div>
-            </div>
+            <input type="checkbox"><div><div class="opt-title">Pre-Raphaelite Brotherhood</div><div class="opt-note">c. 1848–1854 · Moral bridge between Romanticism and Morris; medieval sincerity. <em>Ophelia</em> (Millais).</div></div>
           </div>
-
           <div class="optional-card" id="dada" data-id="dada">
-            <input type="checkbox">
-            <div>
-              <div class="opt-title">Dada</div>
-              <div class="opt-note">c. 1916–1924 · Anti-art as protest; direct precursor to Surrealism. <em>Fountain</em> (Duchamp, 1917).</div>
-            </div>
+            <input type="checkbox"><div><div class="opt-title">Dada</div><div class="opt-note">c. 1916–1924 · Anti-art as protest; direct precursor to Surrealism. <em>Fountain</em> (Duchamp, 1917).</div></div>
           </div>
-
           <div class="optional-card" id="constructivism" data-id="constructivism">
-            <input type="checkbox">
-            <div>
-              <div class="opt-title">Constructivism</div>
-              <div class="opt-note">c. 1915–1930s · Russian parallel to Bauhaus; art as social utility. <em>Monument to the Third International</em> (Tatlin).</div>
-            </div>
+            <input type="checkbox"><div><div class="opt-title">Constructivism</div><div class="opt-note">c. 1915–1930s · Russian parallel to Bauhaus; art as social utility. <em>Monument to the Third International</em> (Tatlin).</div></div>
           </div>
-
           <div class="optional-card" id="artdeco" data-id="artdeco">
-            <input type="checkbox">
-            <div>
-              <div class="opt-title">Art Deco</div>
-              <div class="opt-note">c. 1920–1939 · Commercial cousin of Bauhaus; luxury + machine age. Chrysler Building (1930).</div>
-            </div>
+            <input type="checkbox"><div><div class="opt-title">Art Deco</div><div class="opt-note">c. 1920–1939 · Commercial cousin of Bauhaus; luxury + machine age. Chrysler Building (1930).</div></div>
           </div>
-
         </div>
       </section>
 
     </div>
 
-    <footer>
-      <span>✦</span> Course tracker · progress saves automatically in this browser <span>✦</span>
-    </footer>
+    <footer><span>✦</span> Course tracker · progress saves automatically in this browser <span>✦</span></footer>
+  </main>
 
+  <!-- ============ TIMELINE VIEW ============ -->
+  <main class="view" id="viewTimeline">
+    <header class="view-header">
+      <h1>History of Art Movements</h1>
+      <p>Western art styles · historical context · key artworks · artists</p>
+    </header>
+
+    <div class="timeline-header-wrap">
+      <button class="timeline-back-btn" id="timelineBackBtn">← Back to course tracker</button>
+    </div>
+
+    <div class="scroll-hint">
+      <span>←</span> scroll horizontally to explore <span>→</span>
+    </div>
+
+    <div class="timeline-wrapper">
+      <div class="timeline-horizontal">
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 500 – 1400 CE</span>
+            <h2>Medieval &amp; Gothic Art</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Flat perspectives, gold-leaf backgrounds, religious iconography, pointed arches, and stained glass windows.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Dominated by the Catholic Church and feudal society in Europe, art served primarily to educate a largely illiterate public on biblical stories.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Giotto – <em>Scrovegni Chapel frescoes</em> (c. 1305)</li><li>Limbourg Brothers – <em>Très Riches Heures du Duc de Berry</em> (c. 1412–1416)</li><li>Chartres Cathedral – <em>Stained glass &amp; sculpture</em> (12th–13th c.)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Giotto di Bondone, Cimabue, Hildegard of Bingen, Limbourg Brothers</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1400 – 1600</span>
+            <h2>Renaissance</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Linear perspective, anatomical accuracy, chiaroscuro (light and shadow), classical symmetry, and secular portraiture.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Sparked by humanism, scientific inquiry, the printing press, and wealthy merchant patronage in Italian city-states like Florence.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Leonardo da Vinci – <em>Mona Lisa</em> (c. 1503–1519)</li><li>Michelangelo – <em>David</em> (1501–1504)</li><li>Raphael – <em>The School of Athens</em> (1511)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Leonardo da Vinci, Michelangelo, Raphael, Sandro Botticelli, Jan van Eyck</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1600 – 1750</span>
+            <h2>Baroque</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> High drama, tenebrism (extreme contrast of light and dark), dynamic movement, emotional intensity, and ornate grandeur.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Emerged alongside the Catholic Counter-Reformation to inspire awe in viewers, as well as the rise of absolute monarchies and Dutch mercantile wealth.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Caravaggio – <em>The Calling of St Matthew</em> (1599–1600)</li><li>Bernini – <em>Ecstasy of Saint Teresa</em> (1647–1652)</li><li>Rembrandt – <em>The Night Watch</em> (1642)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Caravaggio, Rembrandt van Rijn, Artemisia Gentileschi, Peter Paul Rubens, Gian Lorenzo Bernini</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1730 – 1780</span>
+            <h2>Rococo</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Pastel color palettes, asymmetrical curves, playful and aristocratic themes, delicate brushwork, and lavish ornamentation.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Originated in Paris during the reign of Louis XV as a lighthearted reaction against the heavy formality of the Baroque court at Versailles.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Fragonard – <em>The Swing</em> (1767)</li><li>Boucher – <em>Madame de Pompadour</em> (1756)</li><li>Watteau – <em>Pilgrimage to Cythera</em> (1717)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Jean-Honoré Fragonard, François Boucher, Antoine Watteau, Élisabeth Vigée Le Brun</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1760 – 1830</span>
+            <h2>Neoclassicism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Crisp outlines, sober colors, classical Greek and Roman motifs, moral virtue, and restrained emotion.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Driven by the Age of Enlightenment, archaeological excavations at Pompeii, and the political ideals of the American and French Revolutions.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Jacques-Louis David – <em>Oath of the Horatii</em> (1784)</li><li>Ingres – <em>Grande Odalisque</em> (1814)</li><li>Canova – <em>Psyche Revived by Cupid's Kiss</em> (1787–1793)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Jacques-Louis David, Jean-Auguste-Dominique Ingres, Antonio Canova, Angelica Kauffman</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1780 – 1850</span>
+            <h2>Romanticism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Sublime and untamed nature, intense emotion, individualism, dramatic brushwork, and fascination with the exotic or supernatural.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> A direct rebellion against Enlightenment rationalism, rigid academic rules, and the early dehumanizing effects of the Industrial Revolution.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Goya – <em>The Third of May 1808</em> (1814)</li><li>Turner – <em>The Slave Ship</em> (1840)</li><li>Friedrich – <em>Wanderer above the Sea of Fog</em> (1818)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Francisco Goya, J.M.W. Turner, Eugène Delacroix, Caspar David Friedrich</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1848 – 1880</span>
+            <h2>Realism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Unidealized depictions of everyday life, working-class subjects, earthy palettes, and rejection of mythological or heroic themes.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Coincided with the European Revolutions of 1848, the rise of journalism, photography, and growing awareness of social inequality.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Courbet – <em>The Stone Breakers</em> (1849)</li><li>Millet – <em>The Gleaners</em> (1857)</li><li>Daumier – <em>The Third-Class Carriage</em> (1862–1864)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Gustave Courbet, Jean-François Millet, Honoré Daumier, Rosa Bonheur</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1865 – 1885</span>
+            <h2>Impressionism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Visible, rapid brushstrokes, emphasis on changing natural light, open-air (<em>en plein air</em>) painting, and fleeting modern moments.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Enabled by portable paint tubes and newly built railways allowing Paris artists to paint outdoors, alongside the invention of photography.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Monet – <em>Impression, Sunrise</em> (1872)</li><li>Renoir – <em>Bal du moulin de la Galette</em> (1876)</li><li>Morisot – <em>The Cradle</em> (1872)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Claude Monet, Pierre-Auguste Renoir, Edgar Degas, Berthe Morisot, Mary Cassatt</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1886 – 1905</span>
+            <h2>Post-Impressionism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Symbolic and expressive colors, geometric structure, thick impasto, pointillism, and subjective emotional depth.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Artists sought to restore form, structure, and personal meaning that they felt Impressionism had sacrificed in pursuit of light.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Van Gogh – <em>The Starry Night</em> (1889)</li><li>Cézanne – <em>Mont Sainte-Victoire</em> (1902–1904)</li><li>Seurat – <em>A Sunday on La Grande Jatte</em> (1884)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Vincent van Gogh, Paul Cézanne, Paul Gauguin, Georges Seurat, Henri de Toulouse-Lautrec</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1905 – 1920</span>
+            <h2>Expressionism &amp; Fauvism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Non-naturalistic, bold colors, distorted forms, jagged lines, and raw psychological anxiety or joy.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Reflected widespread alienation, rapid urbanization, and spiritual dread in Europe leading up to and during World War I.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Matisse – <em>Woman with a Hat</em> (1905)</li><li>Munch – <em>The Scream</em> (1893)</li><li>Kirchner – <em>Street, Berlin</em> (1913)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Henri Matisse, Edvard Munch, Ernst Ludwig Kirchner, Wassily Kandinsky, Egon Schiele</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1907 – 1920</span>
+            <h2>Cubism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Fragmented objects, geometric planes, simultaneous multiple viewpoints, collage elements, and flattened picture space.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Influenced by Paul Cézanne's late geometric landscapes, African and Iberian masks, and new scientific theories of relativity and perception.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Picasso – <em>Les Demoiselles d'Avignon</em> (1907)</li><li>Braque – <em>Violin and Pitcher</em> (1910)</li><li>Gris – <em>Portrait of Picasso</em> (1912)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Pablo Picasso, Georges Braque, Juan Gris, Fernand Léger</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1924 – 1950</span>
+            <h2>Surrealism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Dreamlike imagery, irrational juxtapositions, biomorphic shapes, automatism, and hyper-realistic rendering of impossible scenes.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Grew out of Dadaism after WWI and was heavily shaped by Sigmund Freud's psychoanalytic theories on the unconscious mind and dreams.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Dalí – <em>The Persistence of Memory</em> (1931)</li><li>Magritte – <em>The Son of Man</em> (1964)</li><li>Kahlo – <em>The Two Fridas</em> (1939)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Salvador Dalí, René Magritte, Frida Kahlo, Max Ernst, Joan Miró</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1943 – 1960</span>
+            <h2>Abstract Expressionism</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Monumental canvases, spontaneous action painting (drips and splashes), color fields, and complete absence of recognizable figures.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Shifted the center of the Western art world from Paris to New York City after World War II, reflecting existentialism and post-war trauma.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Pollock – <em>Autumn Rhythm (Number 30)</em> (1950)</li><li>Rothko – <em>No. 61 (Rust and Blue)</em> (1953)</li><li>de Kooning – <em>Woman I</em> (1950–1952)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Jackson Pollock, Mark Rothko, Willem de Kooning, Lee Krasner, Helen Frankenthaler</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="tcard">
+            <span class="tdate">c. 1955 – 1970</span>
+            <h2>Pop Art</h2>
+            <div class="tdetail-group"><strong>Main Features:</strong> Imagery from advertising, comic books, and consumer goods; vibrant flat colors; silkscreen printing; and irony.</div>
+            <div class="tdetail-group"><strong>Historical Background:</strong> Emerged in Britain and the United States amid post-war economic prosperity, mass television culture, and consumerism.</div>
+            <div class="tartworks-focus"><strong>✦ Key Artworks to Focus On</strong><ul><li>Warhol – <em>Campbell's Soup Cans</em> (1962)</li><li>Lichtenstein – <em>Whaam!</em> (1963)</li><li>Hamilton – <em>Just what is it that makes today's homes so different, so appealing?</em> (1956)</li></ul></div>
+            <div class="tartists"><strong>Representative Artists:</strong> Andy Warhol, Roy Lichtenstein, Richard Hamilton, Yayoi Kusama, Keith Haring</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <footer><span>✦</span> Educational timeline · art history · horizontal scroll <span>✦</span></footer>
   </main>
 
   <script>
     (function() {
       'use strict';
 
-      const STORAGE_KEY = 'artdesign_course_progress_v4';
+      const STORAGE_KEY = 'artdesign_course_progress_v8';
+
+      const body = document.body;
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      const sidebarClose = document.getElementById('sidebarClose');
+      const viewSwitchBtn = document.getElementById('viewSwitchBtn');
+      const viewSwitchIcon = document.getElementById('viewSwitchIcon');
+      const viewSwitchTitle = document.getElementById('viewSwitchTitle');
+      const viewSwitchSub = document.getElementById('viewSwitchSub');
+      const timelineBackBtn = document.getElementById('timelineBackBtn');
+      const viewCourse = document.getElementById('viewCourse');
+      const viewTimeline = document.getElementById('viewTimeline');
 
       const cardItems = Array.from(document.querySelectorAll('.card[data-id]'));
       const optionalItems = Array.from(document.querySelectorAll('.optional-card[data-id]'));
       const navLinks = Array.from(document.querySelectorAll('.nav-list a'));
-
-      const mainCheckboxes = cardItems.map(card => card.querySelector('input[type="checkbox"]'));
-      const optionalCheckboxes = optionalItems.map(card => card.querySelector('input[type="checkbox"]'));
+      const mainCheckboxes = cardItems.map(c => c.querySelector('input[type="checkbox"]'));
+      const optionalCheckboxes = optionalItems.map(c => c.querySelector('input[type="checkbox"]'));
       const allCheckboxes = [...mainCheckboxes, ...optionalCheckboxes];
 
       const doneCountEl = document.getElementById('doneCount');
@@ -965,66 +928,84 @@
       const progressMsg = document.getElementById('progressMsg');
       const sidebarProgress = document.getElementById('sidebarProgress');
       const resetBtn = document.getElementById('resetBtn');
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const sidebarClose = document.getElementById('sidebarClose');
 
-      const body = document.body;
+      let currentView = 'course';
 
-      /* ---------- SIDEBAR TOGGLE ---------- */
-      function openSidebar() {
-        body.classList.add('sidebar-open');
-        sidebarToggle.setAttribute('aria-expanded', 'true');
-      }
-      function closeSidebar() {
-        body.classList.remove('sidebar-open');
-        sidebarToggle.setAttribute('aria-expanded', 'false');
-      }
-      function toggleSidebar() {
-        if (body.classList.contains('sidebar-open')) closeSidebar();
-        else openSidebar();
-      }
-
-      sidebarToggle.addEventListener('click', toggleSidebar);
+      /* ---------- SIDEBAR ---------- */
+      function openSidebar() { body.classList.add('sidebar-open'); sidebarToggle.setAttribute('aria-expanded', 'true'); }
+      function closeSidebar() { body.classList.remove('sidebar-open'); sidebarToggle.setAttribute('aria-expanded', 'false'); }
+      sidebarToggle.addEventListener('click', () => body.classList.contains('sidebar-open') ? closeSidebar() : openSidebar());
       sidebarClose.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
 
-      // close on Escape
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeSidebar();
-      });
-
-      /* ---------- SIDEBAR ACCORDION ---------- */
       document.querySelectorAll('.nav-module > button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          btn.parentElement.classList.toggle('open');
-        });
+        btn.addEventListener('click', () => btn.parentElement.classList.toggle('open'));
       });
 
-      /* ---------- SMOOTH SCROLL + CLOSE SIDEBAR ---------- */
+      /* ---------- VIEW SWITCHING ---------- */
+      function updateViewSwitchUI() {
+        if (currentView === 'course') {
+          viewSwitchIcon.textContent = '⟶';
+          viewSwitchTitle.textContent = 'Open the full timeline';
+          viewSwitchSub.textContent = 'horizontal view · all movements & artworks';
+          viewSwitchBtn.classList.remove('active');
+        } else {
+          viewSwitchIcon.textContent = '⟵';
+          viewSwitchTitle.textContent = 'Back to course tracker';
+          viewSwitchSub.textContent = 'click to return to modules & checkboxes';
+          viewSwitchBtn.classList.add('active');
+        }
+      }
+
+      function setView(view) {
+        currentView = view;
+        if (view === 'course') {
+          viewCourse.classList.add('active');
+          viewTimeline.classList.remove('active');
+        } else {
+          viewCourse.classList.remove('active');
+          viewTimeline.classList.add('active');
+        }
+        body.dataset.view = view;
+        updateViewSwitchUI();
+        window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+        closeSidebar();
+      }
+
+      viewSwitchBtn.addEventListener('click', () => {
+        setView(currentView === 'course' ? 'timeline' : 'course');
+      });
+
+      timelineBackBtn.addEventListener('click', () => setView('course'));
+
+      /* ---------- NAV LINKS ---------- */
       navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
+          e.preventDefault();
           const targetId = link.dataset.target;
-          const target = document.getElementById(targetId);
-          if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // If we are on timeline, switch to course first, then scroll
+          if (currentView === 'timeline') {
+            setView('course');
+            // Wait for layout, then scroll
+            setTimeout(() => {
+              const target = document.getElementById(targetId);
+              if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 60);
+          } else {
+            const target = document.getElementById(targetId);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             closeSidebar();
-            const parentMod = link.closest('.nav-module');
-            if (parentMod && !parentMod.classList.contains('open')) {
-              parentMod.classList.add('open');
-            }
           }
+          const parentMod = link.closest('.nav-module');
+          if (parentMod && !parentMod.classList.contains('open')) parentMod.classList.add('open');
         });
       });
 
       /* ---------- PROGRESS ---------- */
       function loadProgress() {
         let saved = null;
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) saved = JSON.parse(raw);
-        } catch (e) { /* ignore */ }
+        try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) saved = JSON.parse(raw); } catch (e) {}
         if (!saved || typeof saved !== 'object') return;
-
         cardItems.forEach(card => {
           const cb = card.querySelector('input[type="checkbox"]');
           if (!cb) return;
@@ -1041,21 +1022,14 @@
 
       function saveProgress() {
         const data = {};
-        cardItems.forEach(card => {
-          const cb = card.querySelector('input[type="checkbox"]');
-          if (cb) data[card.dataset.id] = cb.checked;
-        });
-        optionalItems.forEach(card => {
-          const cb = card.querySelector('input[type="checkbox"]');
-          if (cb) data[card.dataset.id] = cb.checked;
-        });
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { /* ignore */ }
+        cardItems.forEach(card => { const cb = card.querySelector('input[type="checkbox"]'); if (cb) data[card.dataset.id] = cb.checked; });
+        optionalItems.forEach(card => { const cb = card.querySelector('input[type="checkbox"]'); if (cb) data[card.dataset.id] = cb.checked; });
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
       }
 
-      function syncNavChecks() {
+      function syncChecks() {
         navLinks.forEach(link => {
-          const targetId = link.dataset.target;
-          const target = document.getElementById(targetId);
+          const target = document.getElementById(link.dataset.target);
           if (!target) return;
           const cb = target.querySelector('input[type="checkbox"]');
           if (cb) link.classList.toggle('done', cb.checked);
@@ -1075,42 +1049,33 @@
         else if (pct >= 75) progressMsg.textContent = 'Almost there — great progress!';
         else if (pct >= 40) progressMsg.textContent = 'Making good progress. Keep going!';
         else progressMsg.textContent = 'Progress saves automatically in this browser.';
-        syncNavChecks();
+        syncChecks();
       }
 
-      /* ---------- CHECKBOX LISTENERS ---------- */
       cardItems.forEach(card => {
         const cb = card.querySelector('input[type="checkbox"]');
         if (!cb) return;
-        cb.addEventListener('change', () => {
-          card.classList.toggle('checked', cb.checked);
-          saveProgress();
-          updateProgress();
-        });
+        cb.addEventListener('change', () => { card.classList.toggle('checked', cb.checked); saveProgress(); updateProgress(); });
       });
-
       optionalItems.forEach(card => {
         const cb = card.querySelector('input[type="checkbox"]');
         if (!cb) return;
-        cb.addEventListener('change', () => {
-          card.classList.toggle('checked', cb.checked);
-          saveProgress();
-          updateProgress();
-        });
+        cb.addEventListener('change', () => { card.classList.toggle('checked', cb.checked); saveProgress(); updateProgress(); });
       });
 
-      /* ---------- RESET ---------- */
       resetBtn.addEventListener('click', () => {
         if (!confirm('Reset all progress? This cannot be undone.')) return;
         allCheckboxes.forEach(cb => { cb.checked = false; });
         cardItems.forEach(card => card.classList.remove('checked'));
         optionalItems.forEach(card => card.classList.remove('checked'));
-        try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
         updateProgress();
       });
 
+      /* ---------- INIT ---------- */
       loadProgress();
       updateProgress();
+      updateViewSwitchUI();
     })();
   </script>
 
